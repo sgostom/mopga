@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace mopga
 {
@@ -9,6 +10,10 @@ namespace mopga
     /// </summary>
     public class Game1 : Game
     {
+        Texture2D dustmanTexture;
+        Vector2 dustmanPosition;
+        float dustmanSpeed;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         
@@ -27,6 +32,11 @@ namespace mopga
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            dustmanPosition = new Vector2(
+                graphics.PreferredBackBufferWidth / 2,
+                graphics.PreferredBackBufferHeight / 2
+                );
+            dustmanSpeed = 100f;
 
             base.Initialize();
         }
@@ -41,6 +51,7 @@ namespace mopga
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            dustmanTexture = Content.Load<Texture2D>("ball");
         }
 
         /// <summary>
@@ -62,6 +73,23 @@ namespace mopga
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            var kstate = Keyboard.GetState();
+
+            if (kstate.IsKeyDown(Keys.Up))
+                dustmanPosition.Y -= dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (kstate.IsKeyDown(Keys.Down))
+                dustmanPosition.Y += dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (kstate.IsKeyDown(Keys.Left))
+                dustmanPosition.X -= dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (kstate.IsKeyDown(Keys.Right))
+                dustmanPosition.X += dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            dustmanPosition.X = Math.Min(Math.Max(dustmanTexture.Width / 2, dustmanPosition.X), graphics.PreferredBackBufferWidth - dustmanTexture.Width / 2);
+            dustmanPosition.Y = Math.Min(Math.Max(dustmanTexture.Height / 2, dustmanPosition.Y), graphics.PreferredBackBufferHeight - dustmanTexture.Height / 2);
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -73,9 +101,23 @@ namespace mopga
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.ForestGreen);
 
             // TODO: Add your drawing code here
+
+            spriteBatch.Begin();
+            spriteBatch.Draw(
+                dustmanTexture,
+                dustmanPosition,
+                null,
+                Color.White,
+                0f,
+                new Vector2(dustmanTexture.Width / 2, dustmanTexture.Height / 2),
+                Vector2.One,
+                SpriteEffects.None,
+                0f
+                );
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
