@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace mopga
 {
@@ -10,17 +11,28 @@ namespace mopga
     /// </summary>
     public class Game1 : Game
     {
-        Texture2D dustmanTexture;
-        Vector2 dustmanPosition;
-        float dustmanSpeed;
+        public static int gameWidth = 800;
+        public static int gameHeight = 600;
+        public static int gameOffset = 30;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        
+
+        readonly Random r = new Random();
+        Texture2D dustmanTexture;
+        Vector2 dustmanPosition;
+        float dustmanSpeed;
+        SpriteFont font;
+        int score = 0;
+        readonly List<GameItem> wastes = new List<GameItem>();
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics.PreferredBackBufferWidth = gameWidth;
+            graphics.PreferredBackBufferHeight = gameHeight;
+            graphics.ApplyChanges();
         }
 
         /// <summary>
@@ -52,6 +64,8 @@ namespace mopga
 
             // TODO: use this.Content to load your game content here
             dustmanTexture = Content.Load<Texture2D>("ball");
+            font = Content.Load<SpriteFont>("Font");
+
         }
 
         /// <summary>
@@ -92,6 +106,27 @@ namespace mopga
 
             // TODO: Add your update logic here
 
+            for (int i = 0; i < wastes.Count; i++)
+            {
+                if (wastes[i].position.X < dustmanPosition.X + 30) {
+                    if (wastes[i].position.X > dustmanPosition.X - 30) {
+                        if (wastes[i].position.Y < dustmanPosition.Y + 30) {
+                            if (wastes[i].position.Y > dustmanPosition.Y - 30) {
+                                wastes.RemoveAt(i);
+                                score++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var x = r.Next(10000);
+
+            if (x < ((score * 3) + 30))
+            {
+                wastes.Add(new GameItem());                   
+            }
+
             base.Update(gameTime);
         }
 
@@ -103,9 +138,13 @@ namespace mopga
         {
             GraphicsDevice.Clear(Color.ForestGreen);
 
+            spriteBatch.Begin();
+
+            spriteBatch.DrawString(font, "Score: " + score, new Vector2(10, 10), Color.White);
+
             // TODO: Add your drawing code here
 
-            spriteBatch.Begin();
+
             spriteBatch.Draw(
                 dustmanTexture,
                 dustmanPosition,
@@ -117,9 +156,56 @@ namespace mopga
                 SpriteEffects.None,
                 0f
                 );
+
+            for (int i = 0; i < wastes.Count; i++)
+            {
+                spriteBatch.Draw(dustmanTexture, wastes[i].position, Color.White);
+            }
+
+
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+    }
+
+    public enum WasteTypes
+    {
+        Metal = 0,
+        Paper = 1,
+        Plastic = 2,
+        Glass = 3,
+        Organic = 4,
+    }
+
+    public class GameItem
+    {
+        readonly Random r = new Random();
+
+        public int type;
+        public Vector2 position;
+
+        public GameItem()
+        {
+            this.type = GetRandomType();
+            this.position = GetRandomPosition();
+        }
+
+        public int GetRandomType()
+        {
+            Random r = new Random();
+
+            int randomType = r.Next(Enum.GetNames(typeof(WasteTypes)).Length);
+
+            return randomType;
+        }
+
+        public Vector2 GetRandomPosition()
+        {
+            int x = r.Next(Game1.gameOffset, Game1.gameWidth - Game1.gameOffset);
+            int y = r.Next(Game1.gameOffset, Game1.gameHeight - Game1.gameOffset);
+
+            return new Vector2(x, y);
         }
     }
 }
