@@ -18,7 +18,6 @@ namespace mopga
         readonly Random r = new Random();
 
         Dustman dustman = new Dustman();
-
         readonly List<Texture2D> dustmanTextures = new List<Texture2D>();
         Vector2 dustmanPosition;
 
@@ -92,6 +91,22 @@ namespace mopga
             if (kstate.IsKeyDown(Keys.Right))
                 dustmanPosition.X += dustman.dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            if (kstate.IsKeyDown(Keys.D1))
+                dustman.type = (int)WasteTypes.Metal;
+
+            if (kstate.IsKeyDown(Keys.D2))
+                dustman.type = (int)WasteTypes.Paper;
+
+            if (kstate.IsKeyDown(Keys.D3))
+                dustman.type = (int)WasteTypes.Plastic;
+
+            if (kstate.IsKeyDown(Keys.D4))
+                dustman.type = (int)WasteTypes.Glass;
+
+            if (kstate.IsKeyDown(Keys.D5))
+                dustman.type = (int)WasteTypes.Organic;
+
+
             dustmanPosition.X = Math.Min(Math.Max(dustmanTextures[dustman.type].Width / 2, dustmanPosition.X),
                 graphics.PreferredBackBufferWidth - dustmanTextures[dustman.type].Width / 2);
             dustmanPosition.Y = Math.Min(Math.Max(dustmanTextures[dustman.type].Height / 2, dustmanPosition.Y),
@@ -99,12 +114,18 @@ namespace mopga
 
             for (int i = 0; i < wastes.Count; i++)
             {
-                if ((wastes[i].position.X + 32 < dustmanPosition.X + 50)
-                    && (wastes[i].position.X + 32 > dustmanPosition.X - 50)
-                    && (wastes[i].position.Y + 32 < dustmanPosition.Y + 50)
-                    && (wastes[i].position.Y + 32 > dustmanPosition.Y - 50)) {
-                    wastes.RemoveAt(i);
-                    score++;
+                if ((wastes[i].position.X + 50 < dustmanPosition.X + 50)
+                    && (wastes[i].position.X + 50 > dustmanPosition.X - 50)
+                    && (wastes[i].position.Y + 50 < dustmanPosition.Y + 50)
+                    && (wastes[i].position.Y + 50 > dustmanPosition.Y - 50)) {
+                    if (wastes[i].type == dustman.type)
+                    {
+                        wastes.RemoveAt(i);
+                        score++;
+                    } else
+                    {
+                        // you lost
+                    }
                 }
             }
 
