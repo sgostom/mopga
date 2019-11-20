@@ -8,8 +8,8 @@ namespace mopga
 {
     public class Game1 : Game
     {
-        public static int gameWidth = 800;
-        public static int gameHeight = 600;
+        public static int gameWidth = 1200;
+        public static int gameHeight = 800;
         public static int gameOffset = 30;
 
         GraphicsDeviceManager graphics;
@@ -17,9 +17,10 @@ namespace mopga
 
         readonly Random r = new Random();
 
-        Texture2D dustmanTexture;
+        Dustman dustman = new Dustman();
+
+        readonly List<Texture2D> dustmanTextures = new List<Texture2D>();
         Vector2 dustmanPosition;
-        float dustmanSpeed;
 
         readonly List<Waste> wastes = new List<Waste>();
         readonly List<Texture2D> wastesTextures = new List<Texture2D>();
@@ -44,7 +45,6 @@ namespace mopga
                 graphics.PreferredBackBufferWidth / 2,
                 graphics.PreferredBackBufferHeight / 2
                 );
-            dustmanSpeed = 100f;
 
             base.Initialize();
         }
@@ -53,13 +53,17 @@ namespace mopga
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            dustmanTexture = Content.Load<Texture2D>("ball");
-
-            wastesTextures.Add(Content.Load<Texture2D>("metal1"));
-            wastesTextures.Add(Content.Load<Texture2D>("paper1"));
-            wastesTextures.Add(Content.Load<Texture2D>("plastic1"));
-            wastesTextures.Add(Content.Load<Texture2D>("glass1"));
-            wastesTextures.Add(Content.Load<Texture2D>("organic1"));
+            dustmanTextures.Add(Content.Load<Texture2D>("dustmanTextures/metalD"));
+            dustmanTextures.Add(Content.Load<Texture2D>("dustmanTextures/paperD"));
+            dustmanTextures.Add(Content.Load<Texture2D>("dustmanTextures/plasticD"));
+            dustmanTextures.Add(Content.Load<Texture2D>("dustmanTextures/glassD"));
+            dustmanTextures.Add(Content.Load<Texture2D>("dustmanTextures/organicD"));
+            
+            wastesTextures.Add(Content.Load<Texture2D>("wasteTextures/metal1"));
+            wastesTextures.Add(Content.Load<Texture2D>("wasteTextures/paper1"));
+            wastesTextures.Add(Content.Load<Texture2D>("wasteTextures/plastic1"));
+            wastesTextures.Add(Content.Load<Texture2D>("wasteTextures/glass1"));
+            wastesTextures.Add(Content.Load<Texture2D>("wasteTextures/organic1"));
 
             font = Content.Load<SpriteFont>("Font");
         }
@@ -77,19 +81,21 @@ namespace mopga
             var kstate = Keyboard.GetState();
 
             if (kstate.IsKeyDown(Keys.Up))
-                dustmanPosition.Y -= dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                dustmanPosition.Y -= dustman.dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (kstate.IsKeyDown(Keys.Down))
-                dustmanPosition.Y += dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                dustmanPosition.Y += dustman.dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (kstate.IsKeyDown(Keys.Left))
-                dustmanPosition.X -= dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                dustmanPosition.X -= dustman.dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             if (kstate.IsKeyDown(Keys.Right))
-                dustmanPosition.X += dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                dustmanPosition.X += dustman.dustmanSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            dustmanPosition.X = Math.Min(Math.Max(dustmanTexture.Width / 2, dustmanPosition.X), graphics.PreferredBackBufferWidth - dustmanTexture.Width / 2);
-            dustmanPosition.Y = Math.Min(Math.Max(dustmanTexture.Height / 2, dustmanPosition.Y), graphics.PreferredBackBufferHeight - dustmanTexture.Height / 2);
+            dustmanPosition.X = Math.Min(Math.Max(dustmanTextures[dustman.type].Width / 2, dustmanPosition.X),
+                graphics.PreferredBackBufferWidth - dustmanTextures[dustman.type].Width / 2);
+            dustmanPosition.Y = Math.Min(Math.Max(dustmanTextures[dustman.type].Height / 2, dustmanPosition.Y),
+                graphics.PreferredBackBufferHeight - dustmanTextures[dustman.type].Height / 2);
 
             for (int i = 0; i < wastes.Count; i++)
             {
@@ -121,12 +127,12 @@ namespace mopga
             spriteBatch.DrawString(font, "Score: " + score, new Vector2(10, 10), Color.White);
 
             spriteBatch.Draw(
-                dustmanTexture,
+                dustmanTextures[dustman.type],
                 dustmanPosition,
                 null,
                 Color.White,
                 0f,
-                new Vector2(dustmanTexture.Width / 2, dustmanTexture.Height / 2),
+                new Vector2(dustmanTextures[dustman.type].Width / 2, dustmanTextures[dustman.type].Height / 2),
                 Vector2.One,
                 SpriteEffects.None,
                 0f

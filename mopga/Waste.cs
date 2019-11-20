@@ -1,17 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace mopga
 {
     class Waste : GameItem
     {
         readonly Random r = new Random();
-
-        public Vector2 position;
 
         public Waste()
         {

@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace mopga
 {
-    class GameItem
+    abstract class GameItem
     {
         public int type;
+        public Vector2 position;
 
         public GameItem()
         {
