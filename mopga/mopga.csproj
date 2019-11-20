@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Dustman.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="GameStates.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GameItem.cs" />

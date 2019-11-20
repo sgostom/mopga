@@ -12,7 +12,7 @@ namespace mopga
 
         public Dustman()
         {
-            this.dustmanSpeed = 100f;
+            this.dustmanSpeed = 200f;
         }
     }
 }
