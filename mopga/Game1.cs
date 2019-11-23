@@ -10,26 +10,31 @@ namespace mopga
     {
         public static int gameWidth = 1200;
         public static int gameHeight = 800;
-        public static int gameOffset = 50;
+        public static int gameOffset = 100;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Texture2D menuTexture;
+        Texture2D tutorialTexture;
+        Texture2D lostGametexture;
+        Texture2D playTexture;
+        Texture2D heartTexture;
+
+        SpriteFont font;
+        SpriteFont fontB;
+
         GameStates gameState = GameStates.Menu;
 
         readonly Random r = new Random();
-
-        Dustman dustman = new Dustman();
+        readonly Dustman dustman = new Dustman();
         readonly List<Texture2D> dustmanTextures = new List<Texture2D>();
         Vector2 dustmanPosition;
-
-        Texture2D heartTexture;
-        int lifeCount = 3;
 
         readonly List<Waste> wastes = new List<Waste>();
         readonly List<Texture2D> wastesTextures = new List<Texture2D>();
 
-        SpriteFont font;    
+        int lifeCount = 3;
         int score = 0;
 
         public Game1()
@@ -56,6 +61,10 @@ namespace mopga
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             heartTexture = Content.Load<Texture2D>("heart");
+            menuTexture = Content.Load<Texture2D>("menu");
+            tutorialTexture = Content.Load<Texture2D>("tutorial");
+            lostGametexture = Content.Load<Texture2D>("lost");
+            playTexture = Content.Load<Texture2D>("play");
 
             dustmanTextures.Add(Content.Load<Texture2D>("dustmanTextures/metalD"));
             dustmanTextures.Add(Content.Load<Texture2D>("dustmanTextures/paperD"));
@@ -70,6 +79,7 @@ namespace mopga
             wastesTextures.Add(Content.Load<Texture2D>("wasteTextures/organic1"));
 
             font = Content.Load<SpriteFont>("Font");
+            fontB = Content.Load<SpriteFont>("FontB");
         }
 
         protected override void UnloadContent()
@@ -140,7 +150,7 @@ namespace mopga
 
                     var x = r.Next(10000);
 
-                    if (x < ((score * 3) + 50))
+                    if (x < ((score * 3) + 100))
                     {
                         wastes.Add(new Waste());
                     }
@@ -176,12 +186,16 @@ namespace mopga
                 case GameStates.GameLost:
 
                     if (kstate.IsKeyDown(Keys.Enter))
+                    {
+                        ResetData();
                         gameState = GameStates.Play;
+                    }
                     
                     if (kstate.IsKeyDown(Keys.Escape))
+                    {
+                        ResetData();
                         gameState = GameStates.Menu;
-
-                    ResetData();
+                    }
 
                     break;
             }
@@ -191,7 +205,7 @@ namespace mopga
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.ForestGreen);
+            GraphicsDevice.Clear(Color.White);
 
             spriteBatch.Begin();
 
@@ -199,45 +213,47 @@ namespace mopga
 
             {
                 case GameStates.Menu:
-                    spriteBatch.DrawString(font, "1. Play", new Vector2(500, 300), Color.White);
-                    spriteBatch.DrawString(font, "2. Tutorial", new Vector2(500, 350), Color.White);
-                    spriteBatch.DrawString(font, "3. Exit", new Vector2(500, 400), Color.White);
+                    spriteBatch.Draw(menuTexture, new Vector2(0,0), Color.White);
+              
+                    break;                
+                
+                case GameStates.Tutorial:
+                    spriteBatch.Draw(tutorialTexture, new Vector2(0,0), Color.White);
+              
                     break;
 
                 case GameStates.Play:
 
-                spriteBatch.DrawString(font, "Score: " + score, new Vector2(gameWidth - 300, 15), Color.White);
+                    spriteBatch.Draw(playTexture, new Vector2(0, 0), Color.White);
 
-                for (int i = 0; i < lifeCount; i++)
-                {
-                    spriteBatch.Draw(heartTexture, new Vector2((gameWidth - 10 - 40 * (i + 1)), 10), Color.White);
-                }
+                    spriteBatch.DrawString(fontB, score.ToString(), new Vector2(920, 20), Color.Black);
 
-                spriteBatch.Draw(
-                    dustmanTextures[dustman.type],
-                    dustmanPosition,
-                    null,
-                    Color.White,
-                    0f,
-                    new Vector2(dustmanTextures[dustman.type].Width / 2, dustmanTextures[dustman.type].Height / 2),
-                    Vector2.One,
-                    SpriteEffects.None,
-                    0f
-                    );
+                    for (int i = 0; i < lifeCount; i++)
+                    {
+                        spriteBatch.Draw(heartTexture, new Vector2((1150 - 40 * (i + 1)), 20), Color.White);
+                    }
 
-                for (int i = 0; i < wastes.Count; i++)
-                {
-                    spriteBatch.Draw(wastesTextures[wastes[i].type], wastes[i].position, Color.White);
-                }
+                    spriteBatch.Draw(
+                        dustmanTextures[dustman.type],
+                        dustmanPosition,
+                        null,
+                        Color.White,
+                        0f,
+                        new Vector2(dustmanTextures[dustman.type].Width / 2, dustmanTextures[dustman.type].Height / 2),
+                        Vector2.One,
+                        SpriteEffects.None,
+                        0f
+                        );
+
+                    for (int i = 0; i < wastes.Count; i++)
+                    {
+                        spriteBatch.Draw(wastesTextures[wastes[i].type], wastes[i].position, Color.White);
+                    }
                     break;
 
                 case GameStates.GameLost:
-                    spriteBatch.DrawString(font, "Score: " + score, new Vector2(gameWidth - 300, 15), Color.White);
-                    spriteBatch.DrawString(font, "Press enter to try again...", new Vector2(500, 388), Color.White);
-                    break;
-
-                case GameStates.Tutorial:
-                    spriteBatch.DrawString(font, "Tutorial", new Vector2(500, 388), Color.White);
+                    spriteBatch.Draw(lostGametexture, new Vector2(0, 0), Color.White);
+                    spriteBatch.DrawString(font, score.ToString(), new Vector2(575, 608), Color.Black);
                     break;
             }
 
